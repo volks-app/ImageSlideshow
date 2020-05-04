@@ -347,18 +347,24 @@ open class ImageSlideshow: UIView {
                 edgeInsets = safeAreaInsets
             }
             
-            //文字入れ部分の調整
-            var pageControlBottomInset: CGFloat = 10.0
+            let pageControlBottomInset: CGFloat = 10.0
             pageIndicatorView.center = CGPoint(x: frame.size.width / 2, y: frame.size.height - pageControlBottomInset)
 
-            pageIndicatorView.sizeToFit()
-            pageIndicatorView.frame = pageIndicatorPosition.indicatorFrame(for: frame, indicatorSize: pageIndicatorView.frame.size, edgeInsets: edgeInsets)
+            var rect: CGRect = pageIndicatorView.frame
+            rect.size.height = CGFloat(20)
+            pageIndicatorView.frame = rect
+
+//            pageIndicatorView.sizeToFit()
+            pageIndicatorView.frame = pageIndicatorPosition.indicatorFrame(for: frame,
+                                                                           indicatorSize: pageIndicatorView.frame.size,
+                                                                           edgeInsets: edgeInsets)
+
         }
     }
 
     /// updates frame of the scroll view and its inner items
     func layoutScrollView() {
-        let pageIndicatorViewSize = pageIndicator?.view.frame.size
+//        let pageIndicatorViewSize = pageIndicator?.view.frame.size
 //        let scrollViewBottomPadding = pageIndicatorViewSize.flatMap { pageIndicatorPosition.underPadding(for: $0) } ?? 0
 
 //        scrollView.frame = CGRect(x: 0, y: 0, width: frame.size.width, height: frame.size.height - scrollViewBottomPadding)
