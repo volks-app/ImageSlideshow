@@ -67,6 +67,10 @@ open class ImageSlideshow: UIView {
         fatalError("pageIndicator is not an instance of UIPageControl")
     }
 
+    /// 文字入れカスタマイズ用
+    open var backView = UIView()
+    open var messageLabel = UILabel()
+
     /// Activity indicator shown when loading image
     open var activityIndicator: ActivityIndicatorFactory? {
         didSet {
@@ -150,6 +154,14 @@ open class ImageSlideshow: UIView {
 
     /// Input Sources loaded to slideshow
     open fileprivate(set) var images = [InputSource]()
+    
+    /// 文字入れカスタマイズ用
+    open fileprivate(set) var messages = [String]()
+    open fileprivate(set) var messagesIn2 = [String]()
+    open fileprivate(set) var topColor:UIColor!
+    open fileprivate(set) var centerColor:UIColor!
+    open fileprivate(set) var bottomColor:UIColor!
+    var gradientColors: [CGColor]!
 
     /// Image Slideshow Items loaded to slideshow
     open fileprivate(set) var slideshowItems = [ImageSlideshowItem]()
@@ -160,7 +172,14 @@ open class ImageSlideshow: UIView {
     open var circular = true {
         didSet {
             if images.count > 0 {
-                setImageInputs(images)
+                /// 文字入れカスタマイズ用
+//                setImageInputs(images)
+                setImageInputs(self.images,
+                               messages: self.messages,
+                               gradeshonTopColor: self.topColor,
+                               gradeshonCenterColor:self.centerColor,
+                               gradeshonBottomColor:self.bottomColor)
+
             }
         }
     }
@@ -234,12 +253,23 @@ open class ImageSlideshow: UIView {
         initialize()
     }
 
+    var gradientLayer: CAGradientLayer!
+
     fileprivate func initialize() {
         autoresizesSubviews = true
         clipsToBounds = true
+        
+        ///文字入れカスタマイズ用
+        let height: Float = Float(frame.size.height)
+        let width: Float = Float(frame.size.width)
+        let width_new: CGFloat = CGFloat(UIScreen.main.bounds.width)
+        let ratio: Float = Float(width_new) / width
+        let height_new: CGFloat = CGFloat(height * ratio)
 
         // scroll view configuration
-        scrollView.frame = CGRect(x: 0, y: 0, width: frame.size.width, height: frame.size.height - 50.0)
+//        scrollView.frame = CGRect(x: 0, y: 0, width: frame.size.width, height: frame.size.height - 50.0)
+        scrollView.frame = CGRect(x: 0, y: 0, width: width_new, height: CGFloat(height_new - 50.0))
+        
         scrollView.delegate = self
         scrollView.isPagingEnabled = true
         scrollView.bounces = true
@@ -254,6 +284,36 @@ open class ImageSlideshow: UIView {
             scrollView.contentInsetAdjustmentBehavior = .never
         }
         addSubview(scrollView)
+
+        // グラデーションエリア作製
+        backView = UIView(frame: CGRect(x: 0, y: height_new - 70, width: width_new, height: 70))
+        backView.backgroundColor = .clear
+
+        gradientColors = [UIColor.clear.cgColor, UIColor.clear.cgColor, UIColor.clear.cgColor]
+        //グラデーションレイヤーを作成
+        gradientLayer = CAGradientLayer()
+        //グラデーションの色をレイヤーに割り当てる
+        gradientLayer.colors = gradientColors
+        //グラデーションレイヤーをスクリーンサイズにする
+        gradientLayer.frame = backView.bounds
+        //グラデーションレイヤーをビューの一番下に配置
+        backView.layer.insertSublayer(gradientLayer, at: 0)
+        //グラデーションエリアを追加
+        addSubview(backView)
+
+        //文字入れ部分を作成して追加
+        messageLabel = UILabel(frame: CGRect(x:10,
+                                             y:height_new - 60,
+                                             width:width_new - 10*2,
+                                             height:60))
+        messageLabel.textAlignment = NSTextAlignment.left
+        messageLabel.font = UIFont.systemFont(ofSize: 14)
+        messageLabel.textColor = UIColor.white
+        messageLabel.backgroundColor = UIColor.clear
+        messageLabel.text = ""
+        messageLabel.numberOfLines = 0
+        addSubview(messageLabel)
+
 
         if pageIndicator == nil {
             pageIndicator = UIPageControl()
@@ -286,6 +346,10 @@ open class ImageSlideshow: UIView {
             if #available(iOS 11.0, *) {
                 edgeInsets = safeAreaInsets
             }
+            
+            //文字入れ部分の調整
+            var pageControlBottomInset: CGFloat = 10.0
+            pageIndicatorView.center = CGPoint(x: frame.size.width / 2, y: frame.size.height - pageControlBottomInset)
 
             pageIndicatorView.sizeToFit()
             pageIndicatorView.frame = pageIndicatorPosition.indicatorFrame(for: frame, indicatorSize: pageIndicatorView.frame.size, edgeInsets: edgeInsets)
@@ -295,16 +359,21 @@ open class ImageSlideshow: UIView {
     /// updates frame of the scroll view and its inner items
     func layoutScrollView() {
         let pageIndicatorViewSize = pageIndicator?.view.frame.size
-        let scrollViewBottomPadding = pageIndicatorViewSize.flatMap { pageIndicatorPosition.underPadding(for: $0) } ?? 0
+//        let scrollViewBottomPadding = pageIndicatorViewSize.flatMap { pageIndicatorPosition.underPadding(for: $0) } ?? 0
 
-        scrollView.frame = CGRect(x: 0, y: 0, width: frame.size.width, height: frame.size.height - scrollViewBottomPadding)
+//        scrollView.frame = CGRect(x: 0, y: 0, width: frame.size.width, height: frame.size.height - scrollViewBottomPadding)
+        scrollView.frame = CGRect(x: 0, y: 0, width: frame.size.width, height: frame.size.height)
         scrollView.contentSize = CGSize(width: scrollView.frame.size.width * CGFloat(scrollViewImages.count), height: scrollView.frame.size.height)
 
         for (index, view) in slideshowItems.enumerated() {
             if !view.zoomInInitially {
                 view.zoomOut()
             }
-            view.frame = CGRect(x: scrollView.frame.size.width * CGFloat(index), y: 0, width: scrollView.frame.size.width, height: scrollView.frame.size.height)
+//            view.frame = CGRect(x: scrollView.frame.size.width * CGFloat(index), y: 0, width: scrollView.frame.size.width, height: scrollView.frame.size.height)
+            view.frame = CGRect(x: scrollView.frame.size.width * CGFloat(index),
+                                y: 0,
+                                width: scrollView.frame.size.width,
+                                height: scrollView.frame.size.height - 20)
         }
 
         setScrollViewPage(scrollViewPage, animated: false)
@@ -337,8 +406,13 @@ open class ImageSlideshow: UIView {
         loadImages(for: scrollViewPage)
     }
 
+    var selectImage:NSInteger!
+    
     private func loadImages(for scrollViewPage: Int) {
         let totalCount = slideshowItems.count
+
+        ///文字入れカスタム
+        messagesIn2 = [String]()
 
         for i in 0..<totalCount {
             let item = slideshowItems[i]
@@ -353,6 +427,40 @@ open class ImageSlideshow: UIView {
                 let shouldLoad = abs(scrollViewPage-i) <= offset || abs(scrollViewPage-i) > totalCount-offset || circularEdgeLoad
                 shouldLoad ? item.loadImage() : item.releaseImage()
             }
+            
+            ///文字入れカスタム
+            if totalCount == 1 {
+                messagesIn2.append(messages[0])
+            }else{
+                if 0 < i && i < totalCount - 1 {
+                    messagesIn2.append(messages[i - 1])
+                }else{
+                    messagesIn2.append("")
+                }
+            }
+
+        }
+        
+        ///文字入れカスタム
+        if messagesIn2.count > 0 {
+            if messagesIn2.count == 0 {
+            }else if messagesIn2.count < 2 {
+                messageLabel.text = messagesIn2[0]
+            }else{
+                if scrollViewPage != 0 {
+                    messageLabel.text = messagesIn2[scrollViewPage]
+                }else if scrollViewPage == 0 && selectImage == 1 {
+                    messageLabel.text = messagesIn2[messagesIn2.count - 2]
+                }
+            }
+
+            if messageLabel.text == "" {
+                backView.isHidden = true
+            }else{
+                backView.isHidden = false
+            }
+
+            selectImage = scrollViewPage
         }
     }
 
@@ -362,10 +470,19 @@ open class ImageSlideshow: UIView {
      Set image inputs into the image slideshow
      - parameter inputs: Array of InputSource instances.
      */
-    open func setImageInputs(_ inputs: [InputSource]) {
+//    open func setImageInputs(_ inputs: [InputSource]) {
+    open func setImageInputs(_ inputs: [InputSource], messages: [String], gradeshonTopColor:UIColor, gradeshonCenterColor:UIColor, gradeshonBottomColor:UIColor) {
         images = inputs
+        self.messages = messages //文字入れカスタム
         pageIndicator?.numberOfPages = inputs.count
 
+        //文字入れ部分
+        self.topColor = gradeshonTopColor
+        self.centerColor = gradeshonCenterColor
+        self.bottomColor = gradeshonBottomColor
+        gradientColors = [topColor.cgColor, centerColor.cgColor, bottomColor.cgColor]
+        gradientLayer.colors = gradientColors //グラデーションの色をレイヤーに割り当てる
+        
         // in circular mode we add dummy first and last image to enable smooth scrolling
         if circular && images.count > 1 {
             var scImages = [InputSource]()
@@ -547,6 +664,7 @@ open class ImageSlideshow: UIView {
         fullscreen.inputs = images
         slideshowTransitioningDelegate = ZoomAnimatedTransitioningDelegate(slideshowView: self, slideshowController: fullscreen)
         fullscreen.transitioningDelegate = slideshowTransitioningDelegate
+        controller.modalPresentationStyle = .fullScreen
         controller.present(fullscreen, animated: true, completion: nil)
 
         return fullscreen
