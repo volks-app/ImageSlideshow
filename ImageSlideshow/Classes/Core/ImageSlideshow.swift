@@ -379,7 +379,7 @@ open class ImageSlideshow: UIView {
             view.frame = CGRect(x: scrollView.frame.size.width * CGFloat(index),
                                 y: 0,
                                 width: scrollView.frame.size.width,
-                                height: scrollView.frame.size.height - 20)
+                                height: scrollView.frame.size.height)
         }
 
         setScrollViewPage(scrollViewPage, animated: false)
