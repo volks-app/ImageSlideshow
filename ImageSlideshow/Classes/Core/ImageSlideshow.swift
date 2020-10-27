@@ -264,7 +264,7 @@ open class ImageSlideshow: UIView {
         let width: Float = Float(frame.size.width)
         let width_new: CGFloat = CGFloat(UIScreen.main.bounds.width)
         let ratio: Float = Float(width_new) / width
-        let height_new: CGFloat = CGFloat(height * ratio)
+        let height_new: CGFloat = width_new //キープウィルは正方形なので縦=横
 
         // scroll view configuration
 //        scrollView.frame = CGRect(x: 0, y: 0, width: frame.size.width, height: frame.size.height - 50.0)
