@@ -30,10 +30,7 @@ class ViewController: UIViewController {
         slideshow.pageIndicatorPosition = .init(horizontal: .center, vertical: .under)
         slideshow.contentScaleMode = UIViewContentMode.scaleAspectFill
 
-        let pageControl = UIPageControl()
-        pageControl.currentPageIndicatorTintColor = UIColor.lightGray
-        pageControl.pageIndicatorTintColor = UIColor.black
-        slideshow.pageIndicator = pageControl
+        slideshow.pageIndicator = UIPageControl.withSlideshowColors()
 
         // optional way to show activity indicator during image load (skipping the line will show no activity indicator)
         slideshow.activityIndicator = DefaultActivityIndicator()
@@ -54,7 +51,7 @@ class ViewController: UIViewController {
 }
 
 extension ViewController: ImageSlideshowDelegate {
-    func imageSlideshow(_ imageSlideshow: ImageSlideshow, didChangeCurrentPageTo page: Int) {        
+    func imageSlideshow(_ imageSlideshow: ImageSlideshow, didChangeCurrentPageTo page: Int) {
         print("current page:", page)
     }
 }
