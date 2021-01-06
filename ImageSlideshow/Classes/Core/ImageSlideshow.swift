@@ -347,6 +347,8 @@ open class ImageSlideshow: UIView {
                 edgeInsets = safeAreaInsets
             }
             
+            pageIndicatorView.sizeToFit()
+            
             let pageControlBottomInset: CGFloat = 10.0
             pageIndicatorView.center = CGPoint(x: frame.size.width / 2, y: frame.size.height - pageControlBottomInset)
 
@@ -354,7 +356,6 @@ open class ImageSlideshow: UIView {
             rect.size.height = CGFloat(20)
             pageIndicatorView.frame = rect
 
-//            pageIndicatorView.sizeToFit()
             pageIndicatorView.frame = pageIndicatorPosition.indicatorFrame(for: frame,
                                                                            indicatorSize: pageIndicatorView.frame.size,
                                                                            edgeInsets: edgeInsets)
